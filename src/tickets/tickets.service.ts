@@ -2,10 +2,10 @@ import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ticket } from './ticket.entity';
-import { CreateTicketDto } from './create_ticket.dto';
+import { CreateTicketDto } from './create-ticket.dto';
 
 @Injectable()
-export class TicketService{
+export class TicketsService{
     constructor(
         @InjectRepository(Ticket)
         private ticketsRepository : Repository <Ticket>
@@ -37,7 +37,7 @@ export class TicketService{
         return this.ticketsRepository.save(siguiente);
     }
 
-    async VerCola() : Promise <Ticket[]> {
+    async verCola() : Promise <Ticket[]> {
         const pendientes = await this.ticketsRepository.find({where:{atendido:false}});
 
         if (pendientes.length === 0){
