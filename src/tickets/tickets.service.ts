@@ -20,7 +20,7 @@ export class TicketsService{
         const pendientes = await this.ticketsRepository.find({where:{atendido : false}});
 
         if(pendientes.length === 0){
-            throw new Error ('La cola esta vacía');
+            throw new Error ('La cola está vacía');
         }
 
         const prioridades = {alta:1, media:2, baja:3};
@@ -41,7 +41,7 @@ export class TicketsService{
         const pendientes = await this.ticketsRepository.find({where:{atendido:false}});
 
         if (pendientes.length === 0){
-            throw new Error("La cola esta vacía")
+            throw new Error("La cola está vacía")
         }
 
         const prioridades = {alta:1, media:2,baja:3}

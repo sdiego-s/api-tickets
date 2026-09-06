@@ -44,4 +44,10 @@ describe('TicketsService', () => {
 
         expect(resultado.id).toBe(2);
     });
+
+    it('debería lanzar un error si la cola está vacía', async() => {
+        mockRepository.find.mockResolvedValue([]);
+
+        await expect (service.atenderSiguiente()).rejects.toThrow('La cola está vacía');
+    })
 });
