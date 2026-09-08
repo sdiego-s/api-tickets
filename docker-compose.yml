@@ -11,6 +11,21 @@ services:
     volumes:
       - tickets_data:/var/lib/postgresql/data
 
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: api-tickets-db
+      DB_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - api-tickets-db
+
+
 volumes:
   tickets_data:
 
