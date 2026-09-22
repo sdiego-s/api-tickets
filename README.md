@@ -1,98 +1,75 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# API de Tickets de Soporte
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST construida con NestJS, PostgreSQL y autenticación JWT para gestionar tickets de soporte técnico. Evolución del sistema de tickets original (hecho en Python con una cola de prioridad en memoria) hacia una API real con persistencia, autenticación y tests.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tecnologías
 
-## Description
+- NestJS + TypeScript
+- PostgreSQL + TypeORM
+- JWT (autenticación) + bcrypt (hash de contraseñas)
+- Jest (tests unitarios)
+- Docker + Docker Compose
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Instalación
 
-## Project setup
+1. Clona el repositorio:
 
 ```bash
-$ npm install
+git clone https://github.com/sdiego-s/api-tickets.git
+cd api-tickets
 ```
 
-## Compile and run the project
+2. Crea un archivo `.env` basado en `.env.example` con tus propios valores.
+
+3. Levanta todo el proyecto (API + base de datos) con Docker:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker compose up -d --build
 ```
 
-## Run tests
+La API queda disponible en `http://localhost:3000`.
 
-```bash
-# unit tests
-$ npm run test
+## Uso
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+### Registro
+```
+POST /users
+{ "username": "diego", "password": "clave1234" }
 ```
 
-## Deployment
+### Login
+```
+POST /auth/login
+{ "username": "diego", "password": "clave1234" }
+```
+Devuelve un `access_token` (JWT) que se manda en el header `Authorization: Bearer <token>` para los endpoints protegidos.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+### Crear ticket (requiere autenticación)
+```
+POST /tickets
+{ "descripcion": "Servidor caído", "prioridad": "alta", "canal": "telefono" }
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Ver cola (público)
+```
+GET /tickets
+```
 
-## Resources
+### Atender siguiente ticket (requiere autenticación)
+```
+POST /tickets/atender
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Decisiones técnicas
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Decidí migrar mi proyecto de Python, que solo vivía en memoria y no tenía persistencia real ni un uso práctico, a esta API. Aquí los tickets se guardan en una base de datos real, así que aunque se reinicie el servidor, los datos y el historial de tickets no se pierden.
 
-## Support
+En el campo `atendido: boolean` decidí manejarlo así para no desechar los tickets al atenderlos, y así conservar el historial completo en la base de datos.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Otro aspecto a recalcar es por qué `verCola` es público pero `crear` y `atender` requieren JWT. Esto es porque `verCola` no solo ayuda al agente que atiende tickets, sino también a los clientes, ya que pueden ver en qué lugar de la fila están. En cambio, `crear` y `atender` son acciones que solo debe poder hacer un usuario autenticado.
 
-## Stay in touch
+En cuanto a seguridad, validé varias cosas con pruebas reales: que la firma del JWT se verifique correctamente (un token con un solo carácter alterado es rechazado), que la expiración funcione tal como se configura (probé con un token de 2 segundos y confirmé que deja de funcionar pasado ese tiempo), y que el `ValidationPipe` con `whitelist: true` elimine campos que no deberían mandarse (como intentar mandar `atendido: true` al crear un ticket).
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Nota sobre el desarrollo
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Construí este proyecto con ayuda de Claude como tutor: me explicó conceptos nuevos para mí (TypeORM, JWT, testing con Jest), señaló mis errores y me guio en la estructura a seguir. Todo el código lo escribí, depuré y probé yo mismo, línea por línea.
